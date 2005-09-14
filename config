@@ -1,0 +1,19 @@
+# This is an example config for Module::Checkstyle
+# it implements perlstyle
+
+global-error-level    = WARN
+
+[Package]
+matches-name          = ERROR ^([A-Z][A-Za-z]+)(::[A-Z][A-Za-z]+)*$
+max-per-file          = 1
+is-first-statement    = true
+has-matching-filename = true
+
+[Whitespace]
+after-comma           = true
+before-comma          = true
+after-fat-comma       = true
+before-fat-comma      = true
+
+[Length]
+max-subroutine-length = 50
