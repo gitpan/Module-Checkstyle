@@ -10,10 +10,10 @@ require Exporter;
 our @ISA         = qw(Exporter);
 
 our @EXPORT      = qw();
-our @EXPORT_OK   = qw(format_expected_err make_problem as_true as_numeric);
+our @EXPORT_OK   = qw(format_expected_err make_problem as_true as_numeric as_regexp);
 our %EXPORT_TAGS = ( all     => [@EXPORT_OK],
                      problem => [qw(format_expected_err make_problem)],
-                     args    => [qw(as_true as_numeric)],
+                     args    => [qw(as_true as_numeric as_regexp)],
                 );
 
 sub format_expected_err {
@@ -47,6 +47,20 @@ sub as_numeric {
     return 0;
 }
 
+sub as_regexp {
+    my $value = shift;
+    return undef if !defined $value;
+    return undef if $value =~ /^\s*$/;
+
+    if ($value !~ /^qr/) {
+        $value = 'qr' . $value;
+    }
+    
+    my $re = eval $value;
+    return undef if $@;
+    return $re;
+}
+
 1;
 __END__
 
@@ -71,9 +85,13 @@ Creates a new C<Module::Checkstyle::Problem> object. See L<Module::Checkstyle::P
 
 Returns 1 if C<$value> is either "y", "yes", "true" or "1" not regarding case. All other value returns 0.
 
-=item as_numeric ($value)    
+=item as_numeric ($value)
 
 Returns the numeric value given in C<$value> if it is integer-numeric with an optional minus-sign. All other values returns 0.
+
+=item as_regexp ($value)
+
+Returns a regular expression object that will match what's given in C<$value>. If it creation of the regexp-object was unsuccessfull it will return undefined.
 
 =back
 

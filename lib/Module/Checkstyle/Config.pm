@@ -181,6 +181,26 @@ example illustrates a sample config file:
 Here we have a global configuration diretive, I<global-error-level>, and a few directives
 applicable to a specified check.
 
+=head2 SEVERITY
+
+The directive I<global-error-level> sets the severity of a style violation. If it's ommited it will
+default to 'warn'.
+
+It is however possible to specify the severity on a per-config basis by prefixing the directives
+value with either 'warn' or 'error' as in C<matches-name = error qr/\w+/>.
+
+=head2 BOOLEAN DIRECTIVES
+
+Some checks expect a boolean value when they read their config. Acceptable booleans are 1, y, yes and true.
+
+=head2 REGEXP DIRECTIVES
+
+Checks that matches names such as variable name or subroutine names expect a regular expression in the config.
+
+To specify a regular expression the recommended way is to use the 'qr' operator as in C<matches-name = qr/\w+/>.
+If you don't want to use another delimiter it is acceptable to specify the regular expression without 'qr' and
+using // as in C<matches-name = /\w+/>.
+
 =head1 SEE ALSO
 
 L<Config::Tiny>

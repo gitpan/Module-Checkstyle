@@ -12,10 +12,10 @@ use Module::Checkstyle::Util qw(:problem :args);
 use base qw(Module::Checkstyle::Check);
 
 # The directives we provide
-Readonly my $PACKAGE_MATCHES_NAME     => 'matches-name';
-Readonly my $MAX_PACKAGES_PER_FILE    => 'max-per-file';
-Readonly my $PACKAGE_COMES_FIRST      => 'is-first-statement';
-Readonly my $PACKAGE_MATCHES_FILENAME => 'has-matching-filename';
+Readonly my $MATCHES_NAME       => 'matches-name';
+Readonly my $MAX_PER_FILE       => 'max-per-file';
+Readonly my $IS_FIRST_STATEMENT => 'is-first-statement';
+Readonly my $MATCHES_FILENAME   => 'has-matching-filename';
 
 sub register {
     return ('enter PPI::Document'     => \&begin_document,
@@ -26,23 +26,17 @@ sub register {
 
 sub new {
     my ($class, $config) = @_;
-    
-    $class = ref $class || $class;
-    my $self = bless { config                    => $config,
-                       packages                  => [],
-                       document                  => undef,
-                       $PACKAGE_MATCHES_NAME     => undef,
-                       $MAX_PACKAGES_PER_FILE    => 0,
-                  }, $class;
+
+    my $self = $class->SUPER::new($config);
+
+    $self->{packages} = [];
+    $self->{document} = undef;
     
     # Keep configuration local
-    if (my $matches_name = $config->get_directive($PACKAGE_MATCHES_NAME)) {
-        $self->{$PACKAGE_MATCHES_NAME} = qr/$matches_name/;
-    }
-    
-    $self->{$MAX_PACKAGES_PER_FILE} = as_numeric($config->get_directive($MAX_PACKAGES_PER_FILE)) || 0;
+    $self->{$MATCHES_NAME}  = as_regexp($config->get_directive($MATCHES_NAME));
+    $self->{$MAX_PER_FILE} = as_numeric($config->get_directive($MAX_PER_FILE)) || 0;
 
-    foreach ($PACKAGE_COMES_FIRST, $PACKAGE_MATCHES_FILENAME) {
+    foreach ($IS_FIRST_STATEMENT, $MATCHES_FILENAME) {
         $self->{$_} = as_true($config->get_directive($_));
     }
     
@@ -57,14 +51,18 @@ sub begin_document {
     my @problems;
     
     # Check first statement ignoring whitespace, comments and pod
-    if ($self->{$PACKAGE_COMES_FIRST}) {
-        my @children = $document->schildren;
-        my $statement = shift @children;
-        if (!defined $statement || !$statement->isa('PPI::Statement::Package')) {
-            push @problems, make_problem($self->{config}->get_severity($PACKAGE_COMES_FIRST),
-                                         qq(First statement is not a package declaration),
-                                         defined $statement ? $statement->location : undef,
-                                         $file);
+    if (defined $file && $file =~ /\.pm$/) {
+        if ($self->{$IS_FIRST_STATEMENT}) {
+            my @children = $document->schildren;
+            my $statement = shift @children;
+            if (!defined $statement || !$statement->isa('PPI::Statement::Package')) {
+                push @problems, make_problem(
+                                             $self->{config}->get_severity($IS_FIRST_STATEMENT),
+                                             qq(First statement is not a package declaration),
+                                             defined $statement ? $statement->location : undef,
+                                             $file
+                                         );
+            }
         }
     }
     
@@ -83,24 +81,28 @@ sub handle_package {
     my $namespace = $package->namespace;
     
     # Check naming
-    if ($namespace && $self->{$PACKAGE_MATCHES_NAME}) {
-        if ($namespace !~ $self->{$PACKAGE_MATCHES_NAME}) {
-            push @problems, make_problem($self->{config}->get_severity($PACKAGE_MATCHES_NAME),
-                                         qq(The package name '$namespace' does not match '$self->{$PACKAGE_MATCHES_NAME}'),
+    if ($namespace && $self->{$MATCHES_NAME}) {
+        if ($namespace !~ $self->{$MATCHES_NAME}) {
+            push @problems, make_problem(
+                                         $self->{config}->get_severity($MATCHES_NAME),
+                                         qq(The package name '$namespace' does not match '$self->{$MATCHES_NAME}'),
                                          $package->location,
-                                         $file);
+                                         $file
+                                     );
         }
     }
     
     # Check count
-    if ($self->{$MAX_PACKAGES_PER_FILE}) {
+    if ($self->{$MAX_PER_FILE}) {
         $self->{count}++;
-        if ($self->{count} > $self->{$MAX_PACKAGES_PER_FILE}) {
-            my $err = qq(The declration 'package $namespace;' exceeds the maximum number of ($self->{$MAX_PACKAGES_PER_FILE}) packages per file);
-            push @problems, make_problem($self->{config}->get_severity($MAX_PACKAGES_PER_FILE),
+        if ($self->{count} > $self->{$MAX_PER_FILE}) {
+            my $err = qq(The declration 'package $namespace;' exceeds the maximum number of ($self->{$MAX_PER_FILE}) packages per file);
+            push @problems, make_problem(
+                                         $self->{config}->get_severity($MAX_PER_FILE),
                                          $err,
                                          $package->location,
-                                         $file);
+                                         $file
+                                     );
         }
     }
     
@@ -114,7 +116,7 @@ sub end_document {
     my @problems;
 
     # Check that we have a package that matches the path if it's a module
-    if ($self->{$PACKAGE_MATCHES_FILENAME} && $file) {
+    if ($self->{$MATCHES_FILENAME} && $file) {
         if ($file =~ /\.pm$/) {
             my $ok_filename = 0;
           CHECK_PACKAGES:
@@ -129,7 +131,7 @@ sub end_document {
             
             if (!$ok_filename) {
                 my $err = qq(The file '$file' does not seem to contain a package matching the filename);
-                push @problems, make_problem($self->{config}->get_severity($PACKAGE_MATCHES_FILENAME),
+                push @problems, make_problem($self->{config}->get_severity($MATCHES_FILENAME),
                                              $err,
                                              undef,
                                              $file);

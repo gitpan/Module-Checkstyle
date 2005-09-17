@@ -38,7 +38,7 @@ END_OF_BUILD
     is($config->get_directive('_', '_config-path'), 'config'); # 4
     
     is($config->get_directive('Package', 'max-per-file'), 1); # 5
-    is($config->get_directive('Package', 'matches-name'), q/^([A-Z][A-Za-z]+)(::[A-Z][A-Za-z]+)*$/); # 6
+    is($config->get_directive('Package', 'matches-name'), q{qr/^([A-Z][A-Za-z]+)(::[A-Z][A-Za-z]+)*$/}); # 6
     
     Module::Checkstyle::Check::Package->test($config);
 }

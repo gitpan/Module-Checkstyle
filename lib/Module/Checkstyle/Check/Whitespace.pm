@@ -23,9 +23,7 @@ sub register {
 sub new {
     my ($class, $config) = @_;
     
-    $class = ref $class || $class;
-    my $self = bless { config             => $config,
-                  }, $class;
+    my $self = $class->SUPER::new($config);
     
     # Keep configuration local
     foreach ($AFTER_COMMA, $BEFORE_COMMA, $AFTER_FAT_COMMA, $BEFORE_FAT_COMMA) {
@@ -44,22 +42,26 @@ sub handle_operator {
         if ($self->{$AFTER_COMMA}) {
             # Next sibling should be whitespace
             my $sibling = $operator->next_sibling();
-            if (!defined $sibling || !$sibling->isa('PPI::Token::Whitespace')) {
-                push @problems, make_problem($self->{config}->get_severity($AFTER_COMMA),
+            if ($sibling && ref $sibling && !$sibling->isa('PPI::Token::Whitespace')) {
+                push @problems, make_problem(
+                                             $self->{config}->get_severity($AFTER_COMMA),
                                              qq(Missing whitespace after comma (,)),
                                              $operator->location,
-                                             $file);
+                                             $file
+                                         );
             }
         }
-
+        
         if ($self->{$BEFORE_COMMA}) {
             # Previous sibling should be whitespace
             my $sibling = $operator->previous_sibling();
-            if (!defined $sibling || !$sibling->isa('PPI::Token::Whitespace')) {
-                push @problems, make_problem($self->{config}->get_severity($BEFORE_COMMA),
+            if ($sibling && ref $sibling && !$sibling->isa('PPI::Token::Whitespace')) {
+                push @problems, make_problem(
+                                             $self->{config}->get_severity($BEFORE_COMMA),
                                              qq(Missing whitespace before comma (,)),
                                              $operator->location,
-                                             $file);
+                                             $file
+                                         );
             }
         }
     }
@@ -68,22 +70,26 @@ sub handle_operator {
         if ($self->{$AFTER_FAT_COMMA}) {
             # Next sibling should be whitespace
             my $sibling = $operator->next_sibling();
-            if (!defined $sibling || !$sibling->isa('PPI::Token::Whitespace')) {
-                push @problems, make_problem($self->{config}->get_severity($AFTER_FAT_COMMA),
+            if ($sibling && ref $sibling && !$sibling->isa('PPI::Token::Whitespace')) {
+                push @problems, make_problem(
+                                             $self->{config}->get_severity($AFTER_FAT_COMMA),
                                              qq(Missing whitespace after fat comma (=>)),
                                              $operator->location,
-                                             $file);
+                                             $file
+                                         );
             }
         }
 
         if ($self->{$BEFORE_FAT_COMMA}) {
             # Previous sibling should be whitespace
             my $sibling = $operator->previous_sibling();
-            if (!defined $sibling || !$sibling->isa('PPI::Token::Whitespace')) {
-                push @problems, make_problem($self->{config}->get_severity($BEFORE_FAT_COMMA),
+            if ($sibling && ref $sibling && !$sibling->isa('PPI::Token::Whitespace')) {
+                push @problems, make_problem(
+                                             $self->{config}->get_severity($BEFORE_FAT_COMMA),
                                              qq(Missing whitespace before fat comma (=>)),
                                              $operator->location,
-                                             $file);
+                                             $file
+                                         );
             }
         }
     }

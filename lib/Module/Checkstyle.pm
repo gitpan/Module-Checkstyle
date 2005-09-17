@@ -14,7 +14,7 @@ use Module::Pluggable search_path => [qw(Module::Checkstyle::Check)], require =>
 use Module::Checkstyle::Config;
 use Module::Checkstyle::Util qw(:problem);
 
-our $VERSION = "0.01";
+our $VERSION = "0.02";
 
 # Controls if we want to be more verbose
 our $debug = 0;
@@ -122,6 +122,7 @@ my @excludes = (
                qr(/TODO$)i,
                qr(/AUTHORS?$)i,
                qr(/CVS/\w+$),
+               qr(~$/), # backup files
               );
 
 # default files to include

@@ -1,8 +1,18 @@
 Revision history for Module-Checkstyle
 
 0.00 Fri Sep 9 2005
-       Project started
+  - Project started
 
-0.01 Wed Sep 15 2005
-       Initial release
+0.01 Wed Sep 14 2005
+  - Initial release
 
+0.02 Sat Sep 17 2005
+  - Added files ending with ~ to the list of files to ignore
+  - Added [Subroutine] checks
+  - Moved max-subroutine-length from [Length] to max-length in [Subroutine]
+  - Added matches-name and disallow-fully-qualified-name in [Subroutine]
+  - Removed [Length] checks
+  - Updated config with new directives
+  - Code cleanups
+  - Fixed bug where is-first-statement in [Package] didn't care wheter it was a pm-file or not
+  - Fixed bug in [Whitespace] where it would call isa on undefined values

@@ -8,8 +8,6 @@ use Pod::Usage;
 
 use Module::Checkstyle;
 
-our $VERSION = "0.01";
-
 my ($all_files, $config_path);
 GetOptions('h|help|?'  => sub { pod2usage({-verbose => 0, -input => \*DATA}); exit; },
            'H|man'     => sub { pod2usage({-verbose => 2, -input => \*DATA}); exit; },
@@ -30,8 +28,7 @@ if ($cs->get_problems) {
 }
 
 sub print_version {
-    printf( "module-checkstyle v%s, using Module::Checkstyle v%s and Perl v%vd\n",
-            $VERSION, $Module::Checkstyle::VERSION, $^V);
+    printf( "module-checkstyle v%s and Perl v%vd\n", $Module::Checkstyle::VERSION, $^V);
 }
     
 __END__

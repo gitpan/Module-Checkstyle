@@ -67,7 +67,7 @@ my $x = 10;
 package Foo::Bar;
 END_OF_CODE
 
-   my @problems = $checker->begin_document($doc);
+   my @problems = $checker->begin_document($doc, 'MyModule.pm');
    is(scalar @problems, 1); # 16
    my $problem = shift @problems;
    like("$problem", qr/First statement is not a package declaration/); # 17
@@ -113,7 +113,7 @@ __DATA__
 global-error-level    = WARN
 
 [Package]
-matches-name          = ERROR ^([A-Z][A-Za-z]+)(::[A-Z][A-Za-z]+)*$
+matches-name          = ERROR /^([A-Z][A-Za-z]+)(::[A-Z][A-Za-z]+)*$/
 max-per-file          = 1
 is-first-statement    = true
 has-matching-filename = true

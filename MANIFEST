@@ -7,8 +7,8 @@ config
 bin/module-checkstyle
 lib/Module/Checkstyle.pm
 lib/Module/Checkstyle/Check.pm
-lib/Module/Checkstyle/Check/Length.pm
 lib/Module/Checkstyle/Check/Package.pm
+lib/Module/Checkstyle/Check/Subroutine.pm
 lib/Module/Checkstyle/Check/Whitespace.pm
 lib/Module/Checkstyle/Config.pm
 lib/Module/Checkstyle/Problem.pm
@@ -19,6 +19,6 @@ t/02-util.t
 t/03-problem.t
 t/10-check-package.t
 t/11-check-whitespace.t
-t/12-check-length.t
+t/12-check-subroutine.t
 t/pod-coverage.t
 t/pod.t
