@@ -1,5 +1,8 @@
 package Module::Checkstyle::Check;
 
+use strict;
+use warnings;
+
 sub register {
     return ();
 }

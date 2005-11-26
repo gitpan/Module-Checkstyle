@@ -7,9 +7,17 @@ use overload q{""} => \&as_string;
 
 sub new {
     my ($class, $severity, $message, $line, $file) = @_;
-
+    
     $class = ref $class || $class;
-    $line = $line->[0] if defined $line && ref $line eq 'ARRAY';
+    if (defined $line && ref $line) {
+        if (UNIVERSAL::isa($line, 'PPI::Element')) {
+            $line = $line->location();
+        }
+                # Assume this is comming from a PPI::Element->location();
+        if (ref $line eq 'ARRAY') {
+            $line = $line->[0];
+        }
+    }
 
     my $self = bless [ $severity, $message, $line, $file ], $class;
     return $self;

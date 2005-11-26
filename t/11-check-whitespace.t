@@ -1,11 +1,11 @@
 #!perl
-use Test::More tests => 31;
-
-BEGIN { use_ok('Module::Checkstyle::Check::Whitespace'); } # 2
+use Test::More tests => 37;
 
 use strict;
 use PPI;
 use Module::Checkstyle::Config;
+
+BEGIN { use_ok('Module::Checkstyle::Check::Whitespace'); } # 2
 
 # after-comma
 {
@@ -105,17 +105,45 @@ END_OF_CODE
     }
 }
 
+# after-control-word
+{
+    my $checker = Module::Checkstyle::Check::Whitespace->new(Module::Checkstyle::Config->new(\<<'END_OF_CONFIG'));
+[Whitespace]
+after-compound = true
+END_OF_CONFIG
 
-# Handle_package with wrong args
-#{
-    #     eval {
-#         my $problems = $checker->handle_package(bless {}, 'MyModule');
-#         fail('Called handle_package with wrong argument'); # 22
-#     };
-#     if($@) {
-#         like($@, qr(^Expected 'PPI::Statement::Package' but got 'MyModule' at)); # 22
-#     }
-#}
+    my $doc = PPI::Document->new(\<<'END_OF_CODE');
+if ($x) {
+}
+while($x) {
+}
+
+if ($x) {
+} elsif($y) {
+} else{
+}
+END_OF_CODE
+
+    $doc->index_locations();
+
+    my $tokens = $doc->find('PPI::Statement::Compound');
+    is(scalar @$tokens, 3); # 32
+
+    my $token = shift @$tokens;
+    my @problems = $checker->handle_compound($token);
+    is(scalar @problems, 0); # 33
+
+    $token = shift @$tokens;
+    @problems = $checker->handle_compound($token);
+    is(scalar @problems, 1); # 34
+
+    $token = shift @$tokens;
+    @problems = $checker->handle_compound($token);
+    is(scalar @problems, 2); # 35
+    like((shift @problems)->get_message(), qr/^'elsif' /); # 36
+    like((shift @problems)->get_message(), qr/^'else' /); # 37
+}
+
 
 1;
 

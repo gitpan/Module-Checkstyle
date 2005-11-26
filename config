@@ -16,6 +16,7 @@ after-fat-comma               = true
 before-fat-comma              = true
 
 [Subroutine]
-matches-name                  = qr/^\_?([a-z]+)(_[a-z0_9])*$/
+matches-name                  = qr/^([a-z]+)(_[a-z0_9]+)*$/
 max-length                    = 50
-disallow-fully-qualified-name = true
+no-fully-qualified-names      = true
+no-calling-with-ampersand     = true

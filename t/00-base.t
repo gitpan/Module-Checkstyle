@@ -1,5 +1,7 @@
 #!perl
-use Test::More tests => 23;
+use Test::More tests => 29;
+
+use strict;
 
 BEGIN { use_ok( 'Module::Checkstyle' ); } # 1
 
@@ -31,7 +33,7 @@ END_OF_CONFIG
 # Check that finding files works
 {
     my @files = Module::Checkstyle::_get_files('.', 1);
-    is(scalar @files, 10); # 10
+    is(scalar @files, 11); # 10
 }
 
 # Check _post_event and _traverse_document
@@ -75,13 +77,71 @@ END_OF_CODE
 [Test00base2]
 END_OF_CONFIG
 
-    is($cs->check('.'), 9); # 21
+    is($cs->check('.'), 10); # 21
 
     $cs->flush_problems();
     is($cs->check('t/00-base.t'), 1); # 22
 
     $cs->flush_problems();
-    is($cs->check('t', { ignore_common => 0 }), 9); # 23
+
+    my $count = $cs->check('t', { ignore_common => 0 });
+    my @problems = grep { /\.t$/ } $cs->get_problems();
+    ok($count >= scalar @problems); # 23
+}
+
+# Misc tets
+{
+    my $cs = Module::Checkstyle->new(\q{});
+    my $cs2 = $cs->new();
+    isa_ok($cs2, 'Module::Checkstyle'); # 24
+}
+
+{
+    my $cs = Module::Checkstyle->new(\q{[TestEmptyRegister]});
+    is(scalar keys %{$cs->{handlers}}, 0); # 25
+}
+
+SKIP: {
+    eval { require Test::Output; Test::Output->import() };
+
+    skip "Test::Output not installed", 2 if $@;
+    
+    local $Module::Checkstyle::debug = 1;
+
+    # Should trigger output to STDERR
+    stderr_like(
+                sub { Module::Checkstyle->new('config'); },
+                qr/^Using configuration from:/
+            ); # 26
+
+    # Should not trigger output to STDERR
+    stderr_unlike(
+                  sub { Module::Checkstyle->new(\q{}); },
+                  qr/^Using configuration from:/
+              ); # 27
+}
+
+{
+    my $cs = Module::Checkstyle->new(\q{});
+    $cs->check(undef);
+    is(scalar @{$cs->get_problems()}, 0); # 28
+
+    eval {
+        $cs->check('this-should-not-exist');
+    };
+    if ($@) {
+        like($@, qr/does not exist/); # 29
+    } else {
+        fail('checked an non existing file'); # 29
+    }
+}
+
+package Module::Checkstyle::Check::TestEmptyRegister;
+
+use base qw(Module::Checkstyle::Check);
+
+sub register {
+    return ();
 }
 
 package Module::Checkstyle::Check::Test00base1;

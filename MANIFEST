@@ -9,6 +9,7 @@ lib/Module/Checkstyle.pm
 lib/Module/Checkstyle/Check.pm
 lib/Module/Checkstyle/Check/Package.pm
 lib/Module/Checkstyle/Check/Subroutine.pm
+lib/Module/Checkstyle/Check/Variable.pm
 lib/Module/Checkstyle/Check/Whitespace.pm
 lib/Module/Checkstyle/Config.pm
 lib/Module/Checkstyle/Problem.pm
@@ -20,5 +21,6 @@ t/03-problem.t
 t/10-check-package.t
 t/11-check-whitespace.t
 t/12-check-subroutine.t
+t/13-check-variable.t
 t/pod-coverage.t
 t/pod.t

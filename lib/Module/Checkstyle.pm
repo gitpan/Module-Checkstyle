@@ -14,7 +14,7 @@ use Module::Pluggable search_path => [qw(Module::Checkstyle::Check)], require =>
 use Module::Checkstyle::Config;
 use Module::Checkstyle::Util qw(:problem);
 
-our $VERSION = "0.02";
+our $VERSION = "0.03";
 
 # Controls if we want to be more verbose
 our $debug = 0;
@@ -29,16 +29,16 @@ sub new {
     $config = Module::Checkstyle::Config->new($config);
 
     if ($debug) {
-        if (defined $config && $config->get_directive('_', '_config-path')) {
-            print STDERR "Using configration from: ", $config->get_directive('_', '_config-path'), "\n";
+        if ($config->get_directive('_', '_config-path')) {
+            print STDERR "Using configuration from: ", $config->get_directive('_', '_config-path'), "\n";
         }
     }
     
-
-    my $self = bless { config   => $config,
-                       checked  => {},
-                       problems => [],
-                       handlers => {},
+    my $self = bless {
+                      config   => $config,
+                      checked  => {},
+                      problems => [],
+                      handlers => {},
                   }, $class;
     
     # Config file determines what checks to enable by declaring them as 
@@ -48,10 +48,10 @@ sub new {
         my $name = $plugin_class;
         $name =~ s/^Module::Checkstyle::Check:://;
         if ($enable_plugin{$name}) {
-            my %events = $plugin_class->register();
-            if (%events) {
+            my %event = $plugin_class->register();
+            if (%event) {
                 my $plugin = $plugin_class->new($config);
-                while (my ($event, $handler) = each %events) {
+                while (my ($event, $handler) = each %event) {
                     push @{$self->{handlers}->{$event}}, [$plugin, $handler];
                 }
             }
@@ -70,8 +70,15 @@ sub _check_file {
         eval {
             open my $fh, "<", $file || die $!;
             my $shebang = <$fh>;
-            chomp $shebang;
-            $skip = 1 if $shebang !~ /^\#\!.*perl/;
+
+            if (defined $shebang) {
+                chomp $shebang;
+                $skip = 1 if $shebang !~ /^\#\!.*perl/;
+            }
+            else {
+                $skip = 1;
+            }
+          
             close($fh);
         };
         return if $skip;
@@ -122,6 +129,7 @@ my @excludes = (
                qr(/TODO$)i,
                qr(/AUTHORS?$)i,
                qr(/CVS/\w+$),
+               qr(/.svn/),
                qr(~$/), # backup files
               );
 

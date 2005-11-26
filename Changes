@@ -1,10 +1,26 @@
 Revision history for Module-Checkstyle
 
-0.00 Fri Sep 9 2005
-  - Project started
-
-0.01 Wed Sep 14 2005
-  - Initial release
+0.03 Wed Nov 23 2005
+  - Refactored make_problem into new_problem and added support for passing config + directive instead
+    of just a severity. new_problem will discover the caller and get the severity from there
+  - Added INFO and CRITICAL levels to possible severities
+  - Added [Variable] checks with checks for matches-name, arrays-in-plural and hashes-in-singular
+  - Improved processing of $line argument to make_problem function
+  - Refactored some code to follow my own guidelines
+  - Renamed 'disallow-fully-qualified-names' to 'no-fully-qualified-names' in [Subroutine] checks
+  - Added 'no-calling-with-ampersand' check to [Subroutine] checks
+  - Fixed doc typos in [Subroutine] for max-length and disallow-fully-qualified-name
+  - Added check in [Whitespace] for whitespace after control-flow keyword in compound statements
+  - Fixed debug typo when creating M::S object
+  - Improved test coverage
+  - Added missing 'use strict' in lib/Module/Checkstyle/Check.pm
+  - Flipped changelog order
+  - Added .svn to list of files/directories to ignore
+  - Made configuration example follow perlstyle for subroutine names (reported by jonasbn)
+  - Corrected t/00-base.t to handle ignore_common test correctly for non CVS checkouts of M::C
+  - Fixed an issue where M::C tries to figure out if a file is parsable by looking at the
+    shebang and it happens to be undefined which generates a warning.
+  - Added missing dependency (Module::Pluggable) to Makefile.PL (reported by jonasbn)
 
 0.02 Sat Sep 17 2005
   - Added files ending with ~ to the list of files to ignore
@@ -16,3 +32,9 @@ Revision history for Module-Checkstyle
   - Code cleanups
   - Fixed bug where is-first-statement in [Package] didn't care wheter it was a pm-file or not
   - Fixed bug in [Whitespace] where it would call isa on undefined values
+
+0.01 Wed Sep 14 2005
+  - Initial release
+
+0.00 Fri Sep 9 2005
+  - Project started

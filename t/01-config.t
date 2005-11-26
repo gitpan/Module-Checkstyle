@@ -4,6 +4,8 @@ use Test::More tests => 11;
 use File::HomeDir qw(home);
 use File::Spec::Functions qw(catfile);
 
+use strict;
+
 BEGIN { use_ok('Module::Checkstyle::Config'); } # 1
 
 eval <<'END_OF_BUILD';

@@ -1,11 +1,12 @@
 #!perl
 use Test::More tests => 22;
 
-BEGIN { use_ok('Module::Checkstyle::Check::Package'); } # 1
-
 use strict;
 use PPI;
 use Module::Checkstyle::Config;
+
+BEGIN { use_ok('Module::Checkstyle::Check::Package'); } # 1
+
 
 my $checker = Module::Checkstyle::Check::Package->new(Module::Checkstyle::Config->new(\*DATA));
 

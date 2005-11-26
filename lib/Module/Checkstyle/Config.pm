@@ -45,7 +45,7 @@ sub new {
     }
     
     $self->{_}->{'_config-path'} = $name;
-    if (!exists $self->{_}->{'global-error-level'} || $self->{_}->{'global-error-level'} !~ /^error|warn$/) {
+    if (!exists $self->{_}->{'global-error-level'} || $self->{_}->{'global-error-level'} !~ /^cricial|error|info|warn$/) {
         $self->{_}->{'global-error-level'} = 'warn';
     }
 
@@ -59,7 +59,7 @@ sub _fix {
     foreach my $section (keys %{$self}) {
         next if $section eq '_';
         foreach my $property (keys %{$self->{$section}}) {
-            if ($self->{$section}->{$property} =~ m/^ \s* (?:(warn|error)\s+)? (.*?) $/ix) {
+            if ($self->{$section}->{$property} =~ m/^ \s* (?:(critical|error|info|warn)\s+)? (.*?) $/ix) {
                 $self->{_}->{_level}->{$section}->{$property} = $1;
                 $self->{$section}->{$property} = $2;
             }

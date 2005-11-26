@@ -1,11 +1,11 @@
 #!perl
-use Test::More tests => 12;
-
-BEGIN { use_ok('Module::Checkstyle::Check::Subroutine'); } # 1
+use Test::More tests => 17;
 
 use strict;
 use PPI;
 use Module::Checkstyle::Config;
+
+BEGIN { use_ok('Module::Checkstyle::Check::Subroutine'); } # 1
 
 # max-length
 {
@@ -79,11 +79,11 @@ END_OF_CODE
     is(scalar @problems, 0); # 8
 }
 
-# disallow-fully-qualified-name
+# no-fully-qualified-name
 {
     my $checker = Module::Checkstyle::Check::Subroutine->new(Module::Checkstyle::Config->new(\<<'END_OF_CONFIG'));
 [Subroutine]
-disallow-fully-qualified-name = true
+no-fully-qualified-names = true
 END_OF_CONFIG
     
     my $doc = PPI::Document->new(\<<'END_OF_CODE');
@@ -112,3 +112,41 @@ END_OF_CODE
     @problems = $checker->handle_subroutine($token);
     is(scalar @problems, 0); # 12
 }
+
+{
+    my $checker = Module::Checkstyle::Check::Subroutine->new(Module::Checkstyle::Config->new(\<<'END_OF_CONFIG'));
+[Subroutine]
+no-calling-with-ampersand = true
+END_OF_CONFIG
+    
+    my $doc = PPI::Document->new(\<<'END_OF_CODE');
+&foo;
+&foo(10);
+foo(10);
+&foo (20);
+&foo 10 20;
+END_OF_CODE
+
+    $doc->index_locations();
+
+    my $tokens = $doc->find('PPI::Token::Symbol');
+    is (scalar @$tokens, 4); # 13
+
+    my $token = shift @$tokens;
+    my @problems = $checker->handle_symbol($token);
+    is (scalar @problems, 0); # 14
+
+    $token = shift @$tokens;
+    @problems = $checker->handle_symbol($token);
+    is (scalar @problems, 1); # 15
+
+    $token = shift @$tokens;
+    @problems = $checker->handle_symbol($token);
+    is (scalar @problems, 1); # 16
+
+    $token = shift @$tokens;
+    @problems = $checker->handle_symbol($token);
+    is (scalar @problems, 0), # 17
+       
+}
+   

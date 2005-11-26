@@ -53,15 +53,12 @@ sub begin_document {
     # Check first statement ignoring whitespace, comments and pod
     if (defined $file && $file =~ /\.pm$/) {
         if ($self->{$IS_FIRST_STATEMENT}) {
-            my @children = $document->schildren;
+            my @children = $document->schildren();
             my $statement = shift @children;
             if (!defined $statement || !$statement->isa('PPI::Statement::Package')) {
-                push @problems, make_problem(
-                                             $self->{config}->get_severity($IS_FIRST_STATEMENT),
+                push @problems, new_problem($self->{config}, $IS_FIRST_STATEMENT,
                                              qq(First statement is not a package declaration),
-                                             defined $statement ? $statement->location : undef,
-                                             $file
-                                         );
+                                             $statement, $file);
             }
         }
     }
@@ -78,17 +75,14 @@ sub handle_package {
     
     my @problems;
     
-    my $namespace = $package->namespace;
+    my $namespace = $package->namespace();
     
     # Check naming
     if ($namespace && $self->{$MATCHES_NAME}) {
         if ($namespace !~ $self->{$MATCHES_NAME}) {
-            push @problems, make_problem(
-                                         $self->{config}->get_severity($MATCHES_NAME),
+            push @problems, new_problem($self->{config}, $MATCHES_NAME,
                                          qq(The package name '$namespace' does not match '$self->{$MATCHES_NAME}'),
-                                         $package->location,
-                                         $file
-                                     );
+                                         $package, $file);
         }
     }
     
@@ -97,12 +91,9 @@ sub handle_package {
         $self->{count}++;
         if ($self->{count} > $self->{$MAX_PER_FILE}) {
             my $err = qq(The declration 'package $namespace;' exceeds the maximum number of ($self->{$MAX_PER_FILE}) packages per file);
-            push @problems, make_problem(
-                                         $self->{config}->get_severity($MAX_PER_FILE),
+            push @problems, new_problem($self->{config}, $MAX_PER_FILE,
                                          $err,
-                                         $package->location,
-                                         $file
-                                     );
+                                         $package, $file);
         }
     }
     
@@ -121,7 +112,7 @@ sub end_document {
             my $ok_filename = 0;
           CHECK_PACKAGES:
             while (my $package = shift @{$self->{packages}}) {
-                my $fake_file = File::Spec->catfile(split/\:\:/,$package) . ".pm";
+                my $fake_file = File::Spec->catfile(split/\:\:/, $package) . ".pm";
                 my $real_file = substr($file, -length($fake_file));
                 if ($real_file eq $fake_file) {
                     $ok_filename = 1;
@@ -131,10 +122,9 @@ sub end_document {
             
             if (!$ok_filename) {
                 my $err = qq(The file '$file' does not seem to contain a package matching the filename);
-                push @problems, make_problem($self->{config}->get_severity($MATCHES_FILENAME),
+                push @problems, new_problem($self->{config}, $MATCHES_FILENAME,
                                              $err,
-                                             undef,
-                                             $file);
+                                             undef, $file);
             }
         }
     }

@@ -1,5 +1,8 @@
 #!perl
-use Test::More tests => 10;
+use Test::More tests => 11;
+
+use PPI;
+use strict;
 
 BEGIN { use_ok( 'Module::Checkstyle::Problem' ); } # 1
 
@@ -15,12 +18,22 @@ $problem = Module::Checkstyle::Problem->new('warn', 'message', [10, 0], 'file.pl
 
 is($problem->get_line(),     10);        # 7
 
-$problem = $problem->new('warn', 'message', 10, 'file.pl');
+{
+    my $code = "use strict;";
+    my $doc = PPI::Document->new(\$code);
+    $doc->index_locations();
+    my $element = $doc->first_element();
+    $problem = Module::Checkstyle::Problem->new('warn', 'message', $element, 'file.pl');
+    is($problem->get_line(),     1); # 8
+}
+
+$problem = Module::Checkstyle::Problem->new('warn', 'message', 10, 'file.pl');
 
 my $err = "$problem";
-is($err, '[WARN] message at line 10 in file.pl'); # 8
+is($err, '[WARN] message at line 10 in file.pl'); # 9
 
 $problem = $problem->new();
-isa_ok($problem, 'Module::Checkstyle::Problem'); # 9
+isa_ok($problem, 'Module::Checkstyle::Problem'); # 10
 $err = "$problem";
-is($err, '');; # 10
+is($err, ''); # 11
+

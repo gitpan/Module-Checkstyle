@@ -3,6 +3,8 @@ package Module::Checkstyle::Util;
 use strict;
 use warnings;
 
+use Carp qw(croak);
+
 use Module::Checkstyle::Problem;
 
 require Exporter;
@@ -10,9 +12,9 @@ require Exporter;
 our @ISA         = qw(Exporter);
 
 our @EXPORT      = qw();
-our @EXPORT_OK   = qw(format_expected_err make_problem as_true as_numeric as_regexp);
+our @EXPORT_OK   = qw(format_expected_err new_problem as_true as_numeric as_regexp);
 our %EXPORT_TAGS = ( all     => [@EXPORT_OK],
-                     problem => [qw(format_expected_err make_problem)],
+                     problem => [qw(format_expected_err new_problem)],
                      args    => [qw(as_true as_numeric as_regexp)],
                 );
 
@@ -28,8 +30,31 @@ sub format_expected_err {
     return qq(Expected '$expected' but got '$got');
 }
 
-sub make_problem {
-    return Module::Checkstyle::Problem->new(@_);
+sub new_problem {
+    my $problem;
+
+    if (@_ == 4) {
+        $problem = Module::Checkstyle::Problem->new(@_);
+    }
+    elsif (@_ == 5) {
+        my ($config, $directive, $message, $line, $file) = @_;
+        my $severity;
+
+        my ($caller) = caller =~ /^Module::Checkstyle::Check::(.*)$/;
+        if ($caller) {
+            $severity = $config->get_severity($caller, $directive);
+        }
+        else {
+            $severity = $config->get_severity('_', 'global-error-level');
+        }
+
+        $problem = Module::Checkstyle::Problem->new($severity, $message, $line, $file);
+    }
+    else {
+        croak "Module::Checkstyle::Util::new_problem() called with wrong number of arguments";
+    }
+    
+    return $problem;
 }
 
 sub as_true {
@@ -77,9 +102,15 @@ Module::Checkstyle::Util - Convenient functions for checks
 Return the string "Expected '$expected' but got '$got'" but with C<$expected> and C<$got> reduced to
 the reftype if they are references.
 
-=item make_problem ($severity, $message, $line, $file)
+=item new_problem ($config, $directive, $message, $line, $file)
 
-Creates a new C<Module::Checkstyle::Problem> object. See L<Module::Checkstyle::Problem> for more info.
+Creates a new C<Module::Checkstyle::Problem> object. C<$config> must be a C<Module::Checkstyle::Config> object which will be used 
+togther will the caller and C<$directive> to determine severity. C<$line> can be either a C<PPI::Element> object, an array
+reference or a scalar. If it is an array reference the 0-elementwill be used as line.
+
+=item new_problem ($severity, $message, $line, $file)
+
+Creates a new C<Module::Checkstyle::Problem> object with the given severity, message, line and file.
 
 =item as_true ($value)
 
