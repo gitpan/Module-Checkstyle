@@ -56,7 +56,7 @@ sub begin_document {
             my @children = $document->schildren();
             my $statement = shift @children;
             if (!defined $statement || !$statement->isa('PPI::Statement::Package')) {
-                push @problems, new_problem($self->{config}, $IS_FIRST_STATEMENT,
+                push @problems, new_problem($self->config, $IS_FIRST_STATEMENT,
                                              qq(First statement is not a package declaration),
                                              $statement, $file);
             }
@@ -80,7 +80,7 @@ sub handle_package {
     # Check naming
     if ($namespace && $self->{$MATCHES_NAME}) {
         if ($namespace !~ $self->{$MATCHES_NAME}) {
-            push @problems, new_problem($self->{config}, $MATCHES_NAME,
+            push @problems, new_problem($self->config, $MATCHES_NAME,
                                          qq(The package name '$namespace' does not match '$self->{$MATCHES_NAME}'),
                                          $package, $file);
         }
@@ -91,7 +91,7 @@ sub handle_package {
         $self->{count}++;
         if ($self->{count} > $self->{$MAX_PER_FILE}) {
             my $err = qq(The declration 'package $namespace;' exceeds the maximum number of ($self->{$MAX_PER_FILE}) packages per file);
-            push @problems, new_problem($self->{config}, $MAX_PER_FILE,
+            push @problems, new_problem($self->config, $MAX_PER_FILE,
                                          $err,
                                          $package, $file);
         }
@@ -110,6 +110,7 @@ sub end_document {
     if ($self->{$MATCHES_FILENAME} && $file) {
         if ($file =~ /\.pm$/) {
             my $ok_filename = 0;
+
           CHECK_PACKAGES:
             while (my $package = shift @{$self->{packages}}) {
                 my $fake_file = File::Spec->catfile(split/\:\:/, $package) . ".pm";
@@ -122,7 +123,7 @@ sub end_document {
             
             if (!$ok_filename) {
                 my $err = qq(The file '$file' does not seem to contain a package matching the filename);
-                push @problems, new_problem($self->{config}, $MATCHES_FILENAME,
+                push @problems, new_problem($self->config, $MATCHES_FILENAME,
                                              $err,
                                              undef, $file);
             }

@@ -20,3 +20,15 @@ matches-name                  = qr/^([a-z]+)(_[a-z0_9]+)*$/
 max-length                    = 50
 no-fully-qualified-names      = true
 no-calling-with-ampersand     = true
+
+[Variable]
+arrays-in-plural              = true
+hashes-in-singular            = true
+
+[Block]
+default-style                 = pbp
+
+[Label]
+matches-name                  = qr/^[A-Z]+(_[A-Z]+)*$/
+position                      = same
+require-for-break             = false

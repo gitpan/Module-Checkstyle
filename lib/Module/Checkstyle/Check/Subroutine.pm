@@ -54,7 +54,7 @@ sub handle_subroutine {
             my $length = $last_line - $first_line;
             if ($length > $self->{$MAX_LENGTH}) {
                 my $name = $subroutine->name();
-                push @problems, new_problem($self->{config}, $MAX_LENGTH,
+                push @problems, new_problem($self->config, $MAX_LENGTH,
                                              qq(Subroutine '$name' is too long ($length lines)),
                                              $subroutine, $file);
             }
@@ -73,7 +73,7 @@ sub _handle_naming {
     if ($self->{$MATCHES_NAME}) {
         my $name = $subroutine->name();
         if ($name && $name !~ $self->{$MATCHES_NAME}) {
-            push @problems, new_problem($self->{config}, $MATCHES_NAME,
+            push @problems, new_problem($self->config, $MATCHES_NAME,
                                          qq(Subroutine '$name' does not match '$self->{$MATCHES_NAME}'),
                                          $subroutine, $file);
         }
@@ -83,7 +83,7 @@ sub _handle_naming {
     if ($self->{$NO_FQN}) {
         my $name = $subroutine->name();
         if ($name && $name =~ m{ :: | \' }x) {
-            push @problems, new_problem($self->{config}, $NO_FQN,
+            push @problems, new_problem($self->config, $NO_FQN,
                                          qq(Subroutine '$name' is fully qualified),
                                          $subroutine, $file);
         }
@@ -104,7 +104,7 @@ sub handle_symbol {
         my $next_sibling = $symbol->snext_sibling();
         if ($next_sibling && ref $next_sibling && $next_sibling->isa('PPI::Structure::List')) {
             my $name = substr($symbol->content(), 1);
-            push @problems, new_problem($self->{config}, $NO_AMP_CALLS,
+            push @problems, new_problem($self->config, $NO_AMP_CALLS,
                                          qq(Calling subroutine '$name' with ampersand),
                                          $symbol, $file);
         }

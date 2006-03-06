@@ -33,7 +33,7 @@ END_OF_CONFIG
 # Check that finding files works
 {
     my @files = Module::Checkstyle::_get_files('.', 1);
-    is(scalar @files, 11); # 10
+    is(scalar @files, 13); # 10
 }
 
 # Check _post_event and _traverse_document
@@ -77,9 +77,9 @@ END_OF_CODE
 [Test00base2]
 END_OF_CONFIG
 
-    is($cs->check('.'), 10); # 21
-
+    is($cs->check('.'), 12); # 21
     $cs->flush_problems();
+    
     is($cs->check('t/00-base.t'), 1); # 22
 
     $cs->flush_problems();

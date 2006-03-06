@@ -47,18 +47,19 @@ sub _check_variables {
 
     my @problems;
 
+  CHECK_VARIABLE:
     foreach my $variable (@variables) {
         my $type = substr($variable, 0, 1);
         my $name = substr($variable, 1);
 
         # Ignore "built-in" arrays and hashes
-        next if $type eq '@' && $name =~ /^ISA|EXPORT|EXPORT_OK$/;
-        next if $type eq '%' && $name =~ /^EXPORT_TAGS$/;
+        next CHECK_VARIABLE if $type eq '@' && $name =~ /^ISA|EXPORT|EXPORT_OK$/;
+        next CHECK_VARIABLE if $type eq '%' && $name =~ /^EXPORT_TAGS$/;
 
         # matches-name
         if ($self->{$MATCHES_NAME}) {
             if ($name && $name !~ $self->{$MATCHES_NAME}) {
-                push @problems, new_problem($self->{config}, $MATCHES_NAME,
+                push @problems, new_problem($self->config, $MATCHES_NAME,
                                              qq(Variable '$variable' does not match '$self->{$MATCHES_NAME}'),
                                              $declaration, $file);
             }
@@ -68,7 +69,7 @@ sub _check_variables {
         if ($type eq '@' && $self->{$ARRAYS_IN_PLURAL}) {
             my ($last_word) = $name =~ /([A-Z]?(?:[a-z0-9]+|[A-Z0-9]+))$/;
             if (number(lc($last_word)) ne 'p') {
-                push @problems, new_problem($self->{config}, $ARRAYS_IN_PLURAL,
+                push @problems, new_problem($self->config, $ARRAYS_IN_PLURAL,
                                              qq(Variable '$variable' is an array and must be named in plural),
                                              $declaration, $file);
             }
@@ -78,7 +79,7 @@ sub _check_variables {
         if ($type eq '%' && $self->{$HASHES_IN_SINGULAR}) {
             my ($last_word) = $name =~ /([A-Z]?(?:[a-z0-9]+|[A-Z0-9]+))$/;
             if (number(lc($last_word)) ne 's') {
-                push @problems, new_problem($self->{config}, $HASHES_IN_SINGULAR,
+                push @problems, new_problem($self->config, $HASHES_IN_SINGULAR,
                                              qq(Variable '$variable' is an hash and must be named in singular),
                                              $declaration, $file);
             }
@@ -116,13 +117,13 @@ C<matches-name = qr/\w+/>
 
 =item Name arrays in plural
 
-Checks that an array has a plural name as in C<@values> but not C<@value>. Set <arrays-in-plural> to a true value to enable.
+Checks that an array has a plural name as in C<@values> but not C<@value>. Set I<arrays-in-plural> to a true value to enable.
 
 C<arrays-in-plural = true>
 
 =item Name hashes in singular
 
-Checks that a hash has a singular name as in C<%key> but not C<%keys>. Set <hashes-in-singular> to a true value to enable.
+Checks that a hash has a singular name as in C<%key> but not C<%keys>. Set I<hashes-in-singular> to a true value to enable.
 
 C<hashes-in-singular = true>
 

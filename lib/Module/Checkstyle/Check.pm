@@ -10,8 +10,13 @@ sub register {
 sub new {
     my ($class, $config) = @_;
     $class = ref $class || $class;
-    my $self = bless { config => $config }, $class;
+    my $self = bless { _config => $config }, $class;
     return $self;
+}
+
+sub config {
+    my $self = shift;
+    return $self->{_config};
 }
 
 1;
@@ -105,12 +110,15 @@ To finish up our module we write the documentation, see L<Module::Checkstyle::Ch
 
 =item new ($config)
 
-Default constructor that returns a hash-reference blessed to the subclass. The returned object will have the passed
-configuration object available under the key I<config>.
+Default constructor that returns a hash-reference blessed to the subclass. The returned object will have the passed configuration object available under the key I<_config>.
 
 =item register
 
 Abstract method that subclasses should override that provides the events it responds to.
+
+=item config
+
+Returns the config passed to C<new>.
 
 =back
 

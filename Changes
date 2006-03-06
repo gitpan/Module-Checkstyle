@@ -1,5 +1,15 @@
 Revision history for Module-Checkstyle
 
+0.04 Mon Mar 6 2006
+  - Added #.'# to list of files to ignore
+  - Added [Label] checks with checks for naming, position and break-statements without label.
+  - Corrected regexp that ignore files ending with ~
+  - Added missing [Variable] section to sample config
+  - Refactored some code to follow my own guidelines
+  - Moved config value from Check.pm into _config and added config method
+  - Added [Block] checks with checks for curly bracket positioning
+  - Added functions is_valid_position and is_valid_align to M/C/Util.pm
+
 0.03 Wed Nov 23 2005
   - Refactored make_problem into new_problem and added support for passing config + directive instead
     of just a severity. new_problem will discover the caller and get the severity from there
@@ -19,7 +29,7 @@ Revision history for Module-Checkstyle
   - Made configuration example follow perlstyle for subroutine names (reported by jonasbn)
   - Corrected t/00-base.t to handle ignore_common test correctly for non CVS checkouts of M::C
   - Fixed an issue where M::C tries to figure out if a file is parsable by looking at the
-    shebang and it happens to be undefined which generates a warning.
+    shebang and it happens to be undefined which generates a warning
   - Added missing dependency (Module::Pluggable) to Makefile.PL (reported by jonasbn)
 
 0.02 Sat Sep 17 2005

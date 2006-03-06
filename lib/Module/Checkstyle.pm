@@ -14,7 +14,7 @@ use Module::Pluggable search_path => [qw(Module::Checkstyle::Check)], require =>
 use Module::Checkstyle::Config;
 use Module::Checkstyle::Util qw(:problem);
 
-our $VERSION = "0.03";
+our $VERSION = "0.04";
 
 # Controls if we want to be more verbose
 our $debug = 0;
@@ -130,7 +130,8 @@ my @excludes = (
                qr(/AUTHORS?$)i,
                qr(/CVS/\w+$),
                qr(/.svn/),
-               qr(~$/), # backup files
+               qr(~$), # backup files
+               qr(/\#.*\#$), # backup files
               );
 
 # default files to include
@@ -169,8 +170,10 @@ sub check {
     my $args = ref $_[-1] eq 'HASH' ? pop : { ignore_common => 1 };
     
     my @check_files;
+
+  GET_FILES:
     foreach my $file (@_) {
-        next if !defined $file;
+        next GET_FILES if !defined $file;
         
         if (!-e $file) {
             croak "$file does not exist";
@@ -181,7 +184,8 @@ sub check {
             # of common files usually found in distributions such as README,
             # blib/*, inc/*, t/*
             push @check_files, _get_files($file, $args->{ignore_common});
-        } else {
+        }
+        else {
             push @check_files, $file;
         }
     }

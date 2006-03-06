@@ -56,8 +56,9 @@ sub new {
 sub _fix {
     my $self = shift;
 
+  FIX_PROPERTIES:
     foreach my $section (keys %{$self}) {
-        next if $section eq '_';
+        next FIX_PROPERTIES if $section eq '_';
         foreach my $property (keys %{$self->{$section}}) {
             if ($self->{$section}->{$property} =~ m/^ \s* (?:(critical|error|info|warn)\s+)? (.*?) $/ix) {
                 $self->{_}->{_level}->{$section}->{$property} = $1;

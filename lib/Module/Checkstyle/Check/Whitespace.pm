@@ -58,7 +58,7 @@ sub _handle_comma {
             # Next sibling should be whitespace
             my $sibling = $operator->next_sibling();
             if ($sibling && ref $sibling && !$sibling->isa('PPI::Token::Whitespace')) {
-                push @problems, new_problem($self->{config}, $AFTER_COMMA,
+                push @problems, new_problem($self->config, $AFTER_COMMA,
                                              qq(Missing whitespace after comma (,)),
                                              $operator, $file);
             }
@@ -68,7 +68,7 @@ sub _handle_comma {
             # Previous sibling should be whitespace
             my $sibling = $operator->previous_sibling();
             if ($sibling && ref $sibling && !$sibling->isa('PPI::Token::Whitespace')) {
-                push @problems, new_problem($self->{config}, $BEFORE_COMMA,
+                push @problems, new_problem($self->config, $BEFORE_COMMA,
                                              qq(Missing whitespace before comma (,)),
                                              $operator, $file);
             }
@@ -88,7 +88,7 @@ sub _handle_fat_comma {
             # Next sibling should be whitespace
             my $sibling = $operator->next_sibling();
             if ($sibling && ref $sibling && !$sibling->isa('PPI::Token::Whitespace')) {
-                push @problems, new_problem($self->{config}, $AFTER_FAT_COMMA,
+                push @problems, new_problem($self->config, $AFTER_FAT_COMMA,
                                              qq(Missing whitespace after fat comma (=>)),
                                              $operator, $file);
             }
@@ -98,7 +98,7 @@ sub _handle_fat_comma {
             # Previous sibling should be whitespace
             my $sibling = $operator->previous_sibling();
             if ($sibling && ref $sibling && !$sibling->isa('PPI::Token::Whitespace')) {
-                push @problems, new_problem($self->{config}, $BEFORE_FAT_COMMA,
+                push @problems, new_problem($self->config, $BEFORE_FAT_COMMA,
                                              qq(Missing whitespace before fat comma (=>)),
                                              $operator, $file);
             }
@@ -115,12 +115,14 @@ sub handle_compound {
 
     if ($self->{$AFTER_COMPOUND}) {
         my @children = $compound->schildren();
+
+      CHECK_COMPOUND_BLOCK:
         foreach my $child (@children) {
-            next if !$child->isa('PPI::Token::Word');
+            next CHECK_COMPOUND_BLOCK if !$child->isa('PPI::Token::Word');
             my $word = $child->content();
             my $sibling = $child->next_sibling();
             if (defined $sibling && ref $sibling && !$sibling->isa('PPI::Token::Whitespace')) {
-                push @problems, new_problem($self->{config}, $AFTER_COMPOUND,
+                push @problems, new_problem($self->config, $AFTER_COMPOUND,
                                              qq('$word' is not followed by whitespace),
                                              $child, $file);
             }

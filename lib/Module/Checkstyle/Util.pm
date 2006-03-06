@@ -12,10 +12,10 @@ require Exporter;
 our @ISA         = qw(Exporter);
 
 our @EXPORT      = qw();
-our @EXPORT_OK   = qw(format_expected_err new_problem as_true as_numeric as_regexp);
+our @EXPORT_OK   = qw(format_expected_err new_problem as_true as_numeric as_regexp is_valid_position is_valid_align);
 our %EXPORT_TAGS = ( all     => [@EXPORT_OK],
                      problem => [qw(format_expected_err new_problem)],
-                     args    => [qw(as_true as_numeric as_regexp)],
+                     args    => [qw(as_true as_numeric as_regexp is_valid_position is_valid_align)],
                 );
 
 sub format_expected_err {
@@ -86,6 +86,17 @@ sub as_regexp {
     return $re;
 }
 
+sub is_valid_position {
+    my $value = shift || "";
+    return $value =~ /^same|alone$/i ? 1 : 0;
+}
+
+
+sub is_valid_align {
+    my $value = shift || "";
+    return $value =~ /^left|middle|right$/i ? 1 : 0
+}
+
 1;
 __END__
 
@@ -123,6 +134,14 @@ Returns the numeric value given in C<$value> if it is integer-numeric with an op
 =item as_regexp ($value)
 
 Returns a regular expression object that will match what's given in C<$value>. If it creation of the regexp-object was unsuccessfull it will return undefined.
+
+=item is_valid_position ($value)
+
+Returns a true value if the string C<$value> equals a valid position property. These are B<same> and B<alone>.
+
+=item is_valid_align ($value)
+
+Returns a true value if the string C<$value> equals a valid alignment property. These are B<left>, B<middle> and B<right>.
 
 =back
 
